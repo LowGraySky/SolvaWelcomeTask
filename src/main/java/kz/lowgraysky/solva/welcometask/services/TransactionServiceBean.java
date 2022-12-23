@@ -74,7 +74,6 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
             bankAccountFrom.setAddress(pojo.getAccountFrom());
             if(accountFromOwner == null){
                 accountFromOwner = new BankAccountOwner();
-                accountFromOwner.setBankAccount(bankAccountFrom);
                 accountFromOwner.setOwnerType(BankAccountOwnerType.CLIENT);
                 bankAccountOwnerRepository.save(accountFromOwner);
             }
@@ -87,7 +86,6 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
             bankAccountTo.setAddress(pojo.getAccountTo());
             if(accountToOwner == null){
                 accountToOwner = new BankAccountOwner();
-                accountToOwner.setBankAccount(bankAccountTo);
                 accountToOwner.setOwnerType(BankAccountOwnerType.CONTR_AGENT);
                 bankAccountOwnerRepository.save(accountToOwner);
             }

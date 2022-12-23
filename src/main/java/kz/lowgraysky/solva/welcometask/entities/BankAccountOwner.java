@@ -11,10 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class BankAccountOwner extends BaseEntity{
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "BANK_ACCOUNT_ID", referencedColumnName = "ID")
-    private BankAccount bankAccount;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "OWNER_TYPE", nullable = false)
     private BankAccountOwnerType ownerType;

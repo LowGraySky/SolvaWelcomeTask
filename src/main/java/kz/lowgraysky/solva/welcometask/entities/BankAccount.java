@@ -17,6 +17,6 @@ public class BankAccount extends BaseEntity{
     private Long address;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "BANK_ACCOUNT_OWNER")
+    @JoinColumn(name = "BANK_ACCOUNT_OWNER_ID")
     private BankAccountOwner bankAccountOwner;
 }

@@ -1,24 +1,26 @@
 -- liquibase formatted sql
 
--- changeset lowgraysky:1671815284518-2
+-- changeset lowgraysky:1671820600103-1
+CREATE SEQUENCE IF NOT EXISTS public.hibernate_sequence START WITH 1 INCREMENT BY 1;
+
+-- changeset lowgraysky:1671820600103-2
 CREATE TABLE public.BANK_ACCOUNT
 (
-    ID                 BIGINT NOT NULL,
-    ADDRESS            BIGINT NOT NULL,
-    BANK_ACCOUNT_OWNER BIGINT,
+    ID                    BIGINT NOT NULL,
+    ADDRESS               BIGINT NOT NULL,
+    BANK_ACCOUNT_OWNER_ID BIGINT,
     CONSTRAINT pk_bank_account PRIMARY KEY (ID)
 );
 
--- changeset lowgraysky:1671815284518-3
+-- changeset lowgraysky:1671820600103-3
 CREATE TABLE public.BANK_ACCOUNT_OWNER
 (
-    ID              BIGINT       NOT NULL,
-    BANK_ACCOUNT_ID BIGINT,
-    OWNER_TYPE      VARCHAR(255) NOT NULL,
+    ID         BIGINT       NOT NULL,
+    OWNER_TYPE VARCHAR(255) NOT NULL,
     CONSTRAINT pk_bank_account_owner PRIMARY KEY (ID)
 );
 
--- changeset lowgraysky:1671815284518-4
+-- changeset lowgraysky:1671820600103-4
 CREATE TABLE public.CURRENCY
 (
     ID         BIGINT     NOT NULL,
@@ -26,7 +28,7 @@ CREATE TABLE public.CURRENCY
     CONSTRAINT pk_currency PRIMARY KEY (ID)
 );
 
--- changeset lowgraysky:1671815284518-5
+-- changeset lowgraysky:1671820600103-5
 CREATE TABLE public.EXCHANGE_RATE
 (
     ID         BIGINT       NOT NULL,
@@ -39,7 +41,7 @@ CREATE TABLE public.EXCHANGE_RATE
     CONSTRAINT pk_exchange_rate PRIMARY KEY (ID)
 );
 
--- changeset lowgraysky:1671815284518-6
+-- changeset lowgraysky:1671820600103-6
 CREATE TABLE public.TRANSACTION
 (
     ID                BIGINT       NOT NULL,
@@ -56,7 +58,7 @@ CREATE TABLE public.TRANSACTION
     CONSTRAINT pk_transaction PRIMARY KEY (ID)
 );
 
--- changeset lowgraysky:1671815284518-7
+-- changeset lowgraysky:1671820600103-7
 CREATE TABLE public.TRANSACTION_LIMIT
 (
     ID               BIGINT       NOT NULL,
@@ -65,39 +67,35 @@ CREATE TABLE public.TRANSACTION_LIMIT
     CONSTRAINT pk_transaction_limit PRIMARY KEY (ID)
 );
 
--- changeset lowgraysky:1671815284518-8
+-- changeset lowgraysky:1671820600103-8
 ALTER TABLE public.BANK_ACCOUNT
     ADD CONSTRAINT uc_bank_account_address UNIQUE (ADDRESS);
 
--- changeset lowgraysky:1671815284518-9
+-- changeset lowgraysky:1671820600103-9
 ALTER TABLE public.CURRENCY
     ADD CONSTRAINT uc_currency_short_name UNIQUE (SHORT_NAME);
 
--- changeset lowgraysky:1671815284518-10
+-- changeset lowgraysky:1671820600103-10
 ALTER TABLE public.TRANSACTION_LIMIT
     ADD CONSTRAINT uc_transaction_limit_expense_category UNIQUE (EXPENSE_CATEGORY);
 
--- changeset lowgraysky:1671815284518-11
+-- changeset lowgraysky:1671820600103-11
 ALTER TABLE public.BANK_ACCOUNT
-    ADD CONSTRAINT FK_BANK_ACCOUNT_ON_BANK_ACCOUNT_OWNER FOREIGN KEY (BANK_ACCOUNT_OWNER) REFERENCES public.BANK_ACCOUNT_OWNER (ID);
+    ADD CONSTRAINT FK_BANK_ACCOUNT_ON_BANK_ACCOUNT_OWNER FOREIGN KEY (BANK_ACCOUNT_OWNER_ID) REFERENCES public.BANK_ACCOUNT_OWNER (ID);
 
--- changeset lowgraysky:1671815284518-12
-ALTER TABLE public.BANK_ACCOUNT_OWNER
-    ADD CONSTRAINT FK_BANK_ACCOUNT_OWNER_ON_BANK_ACCOUNT FOREIGN KEY (BANK_ACCOUNT_ID) REFERENCES public.BANK_ACCOUNT (ID);
-
--- changeset lowgraysky:1671815284518-13
+-- changeset lowgraysky:1671820600103-12
 ALTER TABLE public.TRANSACTION
     ADD CONSTRAINT FK_TRANSACTION_ON_ACCOUNT_FROM FOREIGN KEY (ACCOUNT_FROM) REFERENCES public.BANK_ACCOUNT (ID);
 
--- changeset lowgraysky:1671815284518-14
+-- changeset lowgraysky:1671820600103-13
 ALTER TABLE public.TRANSACTION
     ADD CONSTRAINT FK_TRANSACTION_ON_ACCOUNT_TO FOREIGN KEY (ACCOUNT_TO) REFERENCES public.BANK_ACCOUNT (ID);
 
--- changeset lowgraysky:1671815284518-15
+-- changeset lowgraysky:1671820600103-14
 ALTER TABLE public.TRANSACTION
     ADD CONSTRAINT FK_TRANSACTION_ON_CURRENCY FOREIGN KEY (CURRENCY_ID) REFERENCES public.CURRENCY (ID);
 
--- changeset lowgraysky:1671815284518-16
+-- changeset lowgraysky:1671820600103-15
 ALTER TABLE public.TRANSACTION
     ADD CONSTRAINT FK_TRANSACTION_ON_LIMIT_CURRENCY FOREIGN KEY (LIMIT_CURRENCY_ID) REFERENCES public.CURRENCY (ID);
 

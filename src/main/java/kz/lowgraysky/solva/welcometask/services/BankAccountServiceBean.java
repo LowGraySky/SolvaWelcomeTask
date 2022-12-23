@@ -1,18 +1,17 @@
 package kz.lowgraysky.solva.welcometask.services;
 
 import kz.lowgraysky.solva.welcometask.entities.BankAccount;
-import kz.lowgraysky.solva.welcometask.entities.BankAccountOwner;
 import kz.lowgraysky.solva.welcometask.exceptions.MissingDataException;
 import kz.lowgraysky.solva.welcometask.repositories.BankAccountRepository;
 import kz.lowgraysky.solva.welcometask.utils.BeanHelper;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BankAccountBeanBean extends BeanHelper implements BankAccountService{
+public class BankAccountServiceBean extends BeanHelper implements BankAccountService{
 
     private final BankAccountRepository bankAccountRepository;
 
-    public BankAccountBeanBean(BankAccountRepository bankAccountRepository) {
+    public BankAccountServiceBean(BankAccountRepository bankAccountRepository) {
         this.bankAccountRepository = bankAccountRepository;
     }
 
