@@ -15,15 +15,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ExchangeBeanBean extends BeanHelper implements ExchangeService {
+public class ExchangeServiceBean extends BeanHelper implements ExchangeService {
 
     private final ConfigProperties configProperties;
     private final RestTemplate restTemplate;
     private final ExchangeRateRepository exchangeRateRepository;
 
-    public ExchangeBeanBean(ConfigProperties configProperties,
-                            RestTemplate restTemplate,
-                            ExchangeRateRepository exchangeRateRepository) {
+    public ExchangeServiceBean(ConfigProperties configProperties,
+                               RestTemplate restTemplate,
+                               ExchangeRateRepository exchangeRateRepository) {
         this.configProperties = configProperties;
         this.restTemplate = restTemplate;
         this.exchangeRateRepository = exchangeRateRepository;
