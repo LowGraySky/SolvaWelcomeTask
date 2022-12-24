@@ -6,11 +6,9 @@ import java.util.List;
 
 public interface TransactionsService extends CommonService<Transaction>{
 
+    void checkOnTransactionLimit(Transaction inst);
+
     void insert(Transaction inst);
-
-    List<Transaction> getByBankAccount(Integer address);
-
-    List<Transaction> getByBankAccount(Integer from, Integer to);
 
     List<Transaction> getAllTransactionWithTimeLimitExceed();
 }

@@ -9,6 +9,7 @@ import kz.lowgraysky.solva.welcometask.utils.BeanHelper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -21,6 +22,7 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
     private final CurrencyRepository currencyRepository;
     private final TransactionInsertRepository transactionInsertRepository;
     private final TransactionLimitServiceBean transactionLimitService;
+    private final ExchangeServiceBean exchangeService;
 
     public TransactionServiceBean(TransactionRepository transactionRepository,
                                   BankAccountRepository bankAccountRepository,
@@ -28,7 +30,8 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
                                   CurrencyServiceBean currencyService,
                                   CurrencyRepository currencyRepository,
                                   TransactionInsertRepository transactionInsertRepository,
-                                  TransactionLimitServiceBean transactionLimitService) {
+                                  TransactionLimitServiceBean transactionLimitService,
+                                  ExchangeServiceBean exchangeService) {
         this.transactionRepository = transactionRepository;
         this.bankAccountRepository = bankAccountRepository;
         this.bankAccountOwnerRepository = bankAccountOwnerRepository;
@@ -36,6 +39,7 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
         this.currencyRepository = currencyRepository;
         this.transactionInsertRepository = transactionInsertRepository;
         this.transactionLimitService = transactionLimitService;
+        this.exchangeService = exchangeService;
     }
 
     @Override
@@ -49,18 +53,40 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
     }
 
     @Override
-    public List<Transaction> getByBankAccount(Integer address) {
-        return transactionRepository.getByAccountAddress(address);
-    }
-
-    @Override
-    public List<Transaction> getByBankAccount(Integer from, Integer to) {
-        return transactionRepository.getByAccountAddress(from, to);
-    }
-
-    @Override
     public List<Transaction> getAllTransactionWithTimeLimitExceed() {
         return transactionRepository.getAllTransactionsWithTimeLimitExceed();
+    }
+
+    @Override
+    public void checkOnTransactionLimit(Transaction inst) {
+        TransactionLimit limit = transactionLimitService.getByExpenseCategoryAndMaxStandBy(inst.getExpenseCategory());
+        BigDecimal transactionAmountWithCurrency;
+        if(!inst.getCurrency().getShortName().equals("USD")) {
+            BigDecimal actualCurrencyExchangeRate = exchangeService.getActualClosePriceForExchangeRate(
+                    String.format("USD/%s", inst.getCurrency().getShortName()),
+                    LocalDate.now()
+            );
+            transactionAmountWithCurrency = inst.getSum().multiply(actualCurrencyExchangeRate);
+        }else{
+            transactionAmountWithCurrency = inst.getSum();
+        }
+
+        if(transactionAmountWithCurrency.compareTo(limit.getAvailableAmount()) > 0){
+            inst.setLimitExceeded(true);
+            inst.setTransactionLimit(limit);
+        }
+        BigDecimal newAvailableAmount = limit.getAvailableAmount().subtract(inst.getSum());
+        limit.setAvailableAmount(
+                newAvailableAmount.max(BigDecimal.ZERO).equals(BigDecimal.ZERO) ? BigDecimal.ZERO : newAvailableAmount
+        );
+        transactionLimitService.save(limit);
+    }
+
+    public Transaction insertTransactionWithCheckOnLimit(TransactionPojo pojo){
+        Transaction transaction = transactionPojoToEntity(pojo);
+        checkOnTransactionLimit(transaction);
+        insert(transaction);
+        return transaction;
     }
 
     @Override
