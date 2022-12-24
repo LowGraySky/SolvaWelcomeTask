@@ -5,7 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @Entity
@@ -28,15 +30,15 @@ public class ExchangeRate extends BaseEntity{
     @Column(name = "LOW", nullable = true)
     private BigDecimal low;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime dateTime;
+    @Temporal(TemporalType.DATE)
+    private LocalDate dateTime;
 
     public ExchangeRate(String symbol,
                         BigDecimal open,
                         BigDecimal close,
                         BigDecimal high,
                         BigDecimal low,
-                        LocalDateTime dateTime) {
+                        LocalDate dateTime) {
         this.symbol = symbol;
         this.open = open;
         this.close = close;

@@ -9,8 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,7 +49,7 @@ public class ExchangeServiceBean extends BeanHelper implements ExchangeService {
         sb.append(String.format("apikey=%s", configProperties.EXCHANGE_SERVICE_API_KEY()));
         ExchangeRateResponsePojo result = this.restTemplate
                 .getForObject(sb.toString(), ExchangeRateResponsePojo.class);
-        logger.info(String.format("Get exchange rates from %s. Result: %s"), sb, result);
+        logger.info(String.format("Get exchange rates from %s. Result: %s", sb, result));
         if(result != null && result.getStatus() != null && !result.getStatus().equals("ok")){
             throw new RuntimeException(
                     String.format("Error occurred in processing request to %s. Message: %s", sb, result.getMessage()));
@@ -60,35 +59,25 @@ public class ExchangeServiceBean extends BeanHelper implements ExchangeService {
 
     @Override
     public void enrichExchangeRatesFromRemote(String symbol) {
-        ExchangeRateResponsePojo enrichData = requestTimeSeries(symbol, LocalDateTime.now().toString());
+        ExchangeRateResponsePojo enrichData = requestTimeSeries(symbol, "1day");
         List<ExchangeRate> rates = exchangeRatePojoToEntity(enrichData);
         exchangeRateRepository.saveAll(rates);
-        logger.info(String.format("Save %s entitys: %s", ExchangeRate.class, rates.toString()));
+        logger.info(String.format("Save %s entities: %s", ExchangeRate.class, rates.toString()));
     }
 
     @Override
-    public BigDecimal getActualClosePriceForExchangeRate(String symbol, LocalDateTime dateTime) {
-        ExchangeRate exchangeRate = exchangeRateRepository.getByDateTimeAndSymbol(symbol, dateTime);
+    public BigDecimal getActualClosePriceForExchangeRate(String symbol, LocalDate date) {
+        ExchangeRate exchangeRate = exchangeRateRepository.getByDateTimeAndSymbol(symbol, date);
         ExchangeRate previousDayExchangeRate = exchangeRateRepository
-                .getByDateTimeAndSymbol(symbol, dateTime.minusDays(1));
-        if(exchangeRate == null){
-            if(previousDayExchangeRate == null){
-                enrichExchangeRatesFromRemote(symbol);
-                getActualClosePriceForExchangeRate(symbol, dateTime);
-            }
-        }else{
-            if(exchangeRate.getClose() == null){
-                if(previousDayExchangeRate.getClose() == null) {
-                    enrichExchangeRatesFromRemote(symbol);
-                    getActualClosePriceForExchangeRate(symbol, dateTime);
-                }else{
-                    return previousDayExchangeRate.getClose();
-                }
-            }else{
-                return exchangeRate.getClose();
-            }
+                .getByDateTimeAndSymbol(symbol, date.minusDays(1));
+        if(exchangeRate != null && exchangeRate.getClose() != null){
+            return exchangeRate.getClose();
         }
-        return null;
+        if(previousDayExchangeRate != null && previousDayExchangeRate.getClose() != null){
+            return previousDayExchangeRate.getClose();
+        }
+        enrichExchangeRatesFromRemote(symbol);
+        return getActualClosePriceForExchangeRate(symbol, date);
     }
 
     public List<ExchangeRate> exchangeRatePojoToEntity(ExchangeRateResponsePojo pojo){
@@ -100,7 +89,7 @@ public class ExchangeServiceBean extends BeanHelper implements ExchangeService {
             exchangeRate.setClose(value.getClose());
             exchangeRate.setHigh(value.getHigh());
             exchangeRate.setLow(value.getLow());
-            exchangeRate.setDateTime(LocalDateTime.of(value.getDatetime(), LocalTime.MIDNIGHT));
+            exchangeRate.setDateTime(value.getDatetime());
             rates.add(exchangeRate);
         }
         return rates;

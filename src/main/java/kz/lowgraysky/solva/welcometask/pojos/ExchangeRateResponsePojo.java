@@ -1,5 +1,6 @@
 package kz.lowgraysky.solva.welcometask.pojos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -15,32 +16,50 @@ public class ExchangeRateResponsePojo implements BasePojo{
 
     private Meta meta;
     private List<Values> values;
-    private Status status;
+
+    @JsonProperty("status")
+    private String status;
+
+    @JsonProperty("message")
     private String message;
 
     @Getter
     @Setter
-    public class Meta{
+    public static class Meta{
+
+        @JsonProperty("symbol")
         private String symbol;
+
+        @JsonProperty("interval")
         private String interval;
-        private String currency_base;
-        private String currency_quote;
+
+        @JsonProperty("currency_base")
+        private String currencyBase;
+
+        @JsonProperty("currency_quote")
+        private String currencyQuote;
+
+        @JsonProperty("type")
         private String type;
     }
 
     @Getter
     @Setter
-    public class Values{
-        private LocalDate datetime;
-        private BigDecimal open;
-        private BigDecimal high;
-        private BigDecimal low;
-        private BigDecimal close;
-    }
+    public static class Values{
 
-    @Getter
-    @Setter
-    public class Status{
-        private String status;
+        @JsonProperty("datetime")
+        private LocalDate datetime;
+
+        @JsonProperty("open")
+        private BigDecimal open;
+
+        @JsonProperty("high")
+        private BigDecimal high;
+
+        @JsonProperty("low")
+        private BigDecimal low;
+
+        @JsonProperty("close")
+        private BigDecimal close;
     }
 }

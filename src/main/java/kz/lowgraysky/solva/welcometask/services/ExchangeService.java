@@ -4,7 +4,7 @@ import kz.lowgraysky.solva.welcometask.entities.ExchangeRate;
 import kz.lowgraysky.solva.welcometask.pojos.ExchangeRateResponsePojo;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 public interface ExchangeService extends CommonService<ExchangeRate>{
 
@@ -12,5 +12,5 @@ public interface ExchangeService extends CommonService<ExchangeRate>{
 
     void enrichExchangeRatesFromRemote(String symbol);
 
-    BigDecimal getActualClosePriceForExchangeRate(String symbol, LocalDateTime dateTime);
+    BigDecimal getActualClosePriceForExchangeRate(String symbol, LocalDate dateTime);
 }
