@@ -13,10 +13,14 @@ import java.math.BigDecimal;
 @Component
 public class LoadInstancesOnStartup implements CommandLineRunner {
 
+    private final ConfigProperties configProperties;
     private final CurrencyRepository currencyRepository;
     private final LimitRepository limitRepository;
 
-    public LoadInstancesOnStartup(CurrencyRepository currencyRepository, LimitRepository limitRepository) {
+    public LoadInstancesOnStartup(ConfigProperties configProperties,
+                                  CurrencyRepository currencyRepository,
+                                  LimitRepository limitRepository) {
+        this.configProperties = configProperties;
         this.currencyRepository = currencyRepository;
         this.limitRepository = limitRepository;
     }
@@ -26,7 +30,7 @@ public class LoadInstancesOnStartup implements CommandLineRunner {
         currencyRepository.save(new Currency("KZT"));
         currencyRepository.save(new Currency("RUB"));
         currencyRepository.save(new Currency("USD"));
-        limitRepository.save(new TransactionLimit(BigDecimal.ZERO, ExpenseCategory.SERVICE));
-        limitRepository.save(new TransactionLimit(BigDecimal.ZERO, ExpenseCategory.PRODUCT));
+        limitRepository.save(new TransactionLimit(configProperties.SERVICE_MONTH_LIMIT(), ExpenseCategory.SERVICE));
+        limitRepository.save(new TransactionLimit(configProperties.PRODUCT_MONTH_LIMIT(), ExpenseCategory.PRODUCT));
     }
 }
