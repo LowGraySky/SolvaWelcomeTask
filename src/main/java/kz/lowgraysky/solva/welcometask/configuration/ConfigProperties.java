@@ -11,10 +11,10 @@ import java.math.BigDecimal;
 public class ConfigProperties {
 
     @Value("${api.twelvedata.url}")
-    private String EXCHANGE_SERVICE_API_KEY;
+    private String EXCHANGE_SERVICE_URL;
 
     @Value("${api.twelvedata.apikey}")
-    private String EXCHANGE_SERVICE_URL;
+    private String EXCHANGE_SERVICE_API_KEY;
 
     @Value("${limit.product.month_limit}")
     private BigDecimal PRODUCT_MONTH_LIMIT;
