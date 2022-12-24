@@ -11,7 +11,7 @@ public interface TransactionLimitService extends CommonService<TransactionLimit>
 
     TransactionLimit setNewLimit(BigDecimal amount, ExpenseCategory category);
 
-    TransactionLimit getByExpenseCategory(ExpenseCategory category);
+    TransactionLimit getByExpenseCategoryAndMaxStandBy(ExpenseCategory category);
 
     List<TransactionLimit> getAllLimits();
 }

@@ -20,11 +20,11 @@ public class TransactionLimit extends BaseEntity {
     private BigDecimal amount;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "EXPENSE_CATEGORY", nullable = false, unique = true)
+    @Column(name = "EXPENSE_CATEGORY", nullable = false)
     private ExpenseCategory expenseCategory;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "STAND_BY", nullable = false)
+    @Column(name = "STAND_BY", nullable = false, unique = true)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ssX")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ssX")
     private ZonedDateTime standByDate;
@@ -33,10 +33,14 @@ public class TransactionLimit extends BaseEntity {
     @JoinColumn(name = "CURRENCY_ID", nullable = false)
     private Currency currency;
 
+    @Column(name = "AVAILABLE_AMOUNT", nullable = false)
+    private BigDecimal availableAmount;
+
     public TransactionLimit(BigDecimal amount, ExpenseCategory category, ZonedDateTime standBy, Currency currency){
         this.amount = amount;
         this.expenseCategory = category;
         this.standByDate = standBy;
         this.currency = currency;
+        this.availableAmount = amount;
     }
 }

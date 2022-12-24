@@ -20,15 +20,15 @@ public class TransactionLimitServiceBean implements TransactionLimitService{
 
     @Override
     public TransactionLimit setNewLimit(BigDecimal amount, ExpenseCategory category) {
-        TransactionLimit limit = getByExpenseCategory(category);
+        TransactionLimit limit = getByExpenseCategoryAndMaxStandBy(category);
         limit.setAmount(amount);
         limit.setStandByDate(ZonedDateTime.now());
         return save(limit);
     }
 
     @Override
-    public TransactionLimit getByExpenseCategory(ExpenseCategory category) {
-        return transactionLimitRepository.getByExpenseCategory(category);
+    public TransactionLimit getByExpenseCategoryAndMaxStandBy(ExpenseCategory category) {
+        return transactionLimitRepository.getByExpenseCategoryAndMaxStandBy(category);
     }
 
     @Override
