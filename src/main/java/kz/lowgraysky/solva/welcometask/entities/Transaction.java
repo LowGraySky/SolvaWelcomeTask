@@ -1,12 +1,14 @@
 package kz.lowgraysky.solva.welcometask.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import kz.lowgraysky.solva.welcometask.entities.enums.ExpenseCategory;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 @NoArgsConstructor
@@ -34,7 +36,9 @@ public class Transaction extends BaseEntity{
     private ExpenseCategory expenseCategory;
 
     @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime dateTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ssX")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ssX")
+    private ZonedDateTime dateTime;
 
     @Column(name = "LIMIT_EXCEDEED")
     private boolean limitExceeded = false;
@@ -44,7 +48,9 @@ public class Transaction extends BaseEntity{
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "LIMIT_DATE_TIME", nullable = true)
-    private LocalDateTime limitDateTime;
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ssX")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ssX")
+    private ZonedDateTime limitDateTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LIMIT_CURRENCY_ID")
@@ -56,7 +62,7 @@ public class Transaction extends BaseEntity{
             Currency currency,
             BigDecimal sum,
             ExpenseCategory expenseCategory,
-            LocalDateTime dateTime){
+            ZonedDateTime dateTime){
         this.accountFrom = accountFrom;
         this.accountTo = accountTo;
         this.currency = currency;

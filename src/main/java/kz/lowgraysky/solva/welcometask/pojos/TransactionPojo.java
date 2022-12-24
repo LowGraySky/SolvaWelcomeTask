@@ -7,10 +7,8 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import org.hibernate.validator.constraints.NotBlank;
 
-
 import java.io.Serializable;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 
 @Data
 @NoArgsConstructor
@@ -31,7 +29,7 @@ public class TransactionPojo implements Serializable {
 
     @NonNull
     @JsonProperty("sum")
-    private BigDecimal sum;
+    private Double sum;
 
     @NonNull
     @NotBlank
@@ -41,5 +39,5 @@ public class TransactionPojo implements Serializable {
     @NonNull
     @JsonProperty("datetime")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ssX")
-    private LocalDateTime dateTime;
+    private ZonedDateTime dateTime;
 }
