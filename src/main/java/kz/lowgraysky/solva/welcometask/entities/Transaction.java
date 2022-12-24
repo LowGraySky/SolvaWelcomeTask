@@ -17,15 +17,15 @@ import java.time.ZonedDateTime;
 public class Transaction extends BaseEntity{
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ACCOUNT_FROM")
+    @JoinColumn(name = "BANK_ACCOUNT_FROM_ID", nullable = false)
     private BankAccount accountFrom;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ACCOUNT_TO")
+    @JoinColumn(name = "BANK_ACCOUNT_TO_ID", nullable = false)
     private BankAccount accountTo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CURRENCY_ID")
+    @JoinColumn(name = "CURRENCY_ID", nullable = false)
     private Currency currency;
 
     @Column(name = "SUM", nullable = false)
@@ -36,6 +36,7 @@ public class Transaction extends BaseEntity{
     private ExpenseCategory expenseCategory;
 
     @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "DATE_TIME", nullable = false)
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ssX")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ssX")
     private ZonedDateTime dateTime;
@@ -43,18 +44,9 @@ public class Transaction extends BaseEntity{
     @Column(name = "LIMIT_EXCEDEED")
     private boolean limitExceeded = false;
 
-    @Column(name = "LIMIT_SUM", nullable = true)
-    private BigDecimal limitSum;
-
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "LIMIT_DATE_TIME", nullable = true)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ssX")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ssX")
-    private ZonedDateTime limitDateTime;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "LIMIT_CURRENCY_ID")
-    private Currency limitCurrency;
+    @JoinColumn(name = "TRANSACTION_LIMIT_ID", nullable = true)
+    private TransactionLimit transactionLimit;
 
     public Transaction(
             BankAccount accountFrom,

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import kz.lowgraysky.solva.welcometask.entities.enums.ExpenseCategory;
 import lombok.*;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
@@ -34,15 +33,4 @@ public class TransactionResponsePojo implements BasePojo {
     @JsonProperty("datetime")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ssX")
     private ZonedDateTime dateTime;
-
-    @JsonProperty("limit_sum")
-    private BigDecimal limitSum;
-
-    @JsonProperty("limit_datetime")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ssX")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ssX")
-    private ZonedDateTime limitDateTime;
-
-    @JsonProperty("limit_currency_shortname")
-    private String limitCurrencyShortName;
 }

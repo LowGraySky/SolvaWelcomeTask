@@ -30,7 +30,7 @@ public class TransactionLimit extends BaseEntity {
     private ZonedDateTime standByDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CURRENCY_ID")
+    @JoinColumn(name = "CURRENCY_ID", nullable = false)
     private Currency currency;
 
     public TransactionLimit(BigDecimal amount, ExpenseCategory category, ZonedDateTime standBy, Currency currency){
