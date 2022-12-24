@@ -22,8 +22,8 @@ public class TransactionController extends AbstractController{
     @PostMapping(value = "", produces = "application/json;charset=utf-8")
     public ResponseEntity<?> insertTransaction(@Valid @RequestBody TransactionPojo transactionPojo){
         Transaction transaction = transactionsService.transactionPojoToEntity(transactionPojo);
-        Transaction result = transactionsService.save(transaction);
-        return new ResponseEntity<>(result, HttpStatus.OK);
+        transactionsService.insert(transaction);
+        return new ResponseEntity<>(transaction, HttpStatus.OK);
     }
 
 }

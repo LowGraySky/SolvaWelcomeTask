@@ -1,5 +1,6 @@
 package kz.lowgraysky.solva.welcometask.services;
 
+import jakarta.transaction.Transactional;
 import kz.lowgraysky.solva.welcometask.entities.BankAccount;
 import kz.lowgraysky.solva.welcometask.entities.BankAccountOwner;
 import kz.lowgraysky.solva.welcometask.entities.Currency;
@@ -11,6 +12,7 @@ import kz.lowgraysky.solva.welcometask.repositories.*;
 import kz.lowgraysky.solva.welcometask.utils.BeanHelper;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -21,17 +23,20 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
     private final BankAccountOwnerRepository bankAccountOwnerRepository;
     private final CurrencyServiceBean currencyService;
     private final CurrencyRepository currencyRepository;
+    private final TransactionInsertRepository transactionInsertRepository;
 
     public TransactionServiceBean(TransactionRepository transactionRepository,
                                   BankAccountRepository bankAccountRepository,
                                   BankAccountOwnerRepository bankAccountOwnerRepository,
                                   CurrencyServiceBean currencyService,
-                                  CurrencyRepository currencyRepository) {
+                                  CurrencyRepository currencyRepository,
+                                  TransactionInsertRepository transactionInsertRepository) {
         this.transactionRepository = transactionRepository;
         this.bankAccountRepository = bankAccountRepository;
         this.bankAccountOwnerRepository = bankAccountOwnerRepository;
         this.currencyService = currencyService;
         this.currencyRepository = currencyRepository;
+        this.transactionInsertRepository = transactionInsertRepository;
     }
 
     @Override
@@ -57,6 +62,16 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
     @Override
     public List<Transaction> getAllTransactionWithTimeLimitExceed() {
         return transactionRepository.getAllTransactionsWithTimeLimitExceed();
+    }
+
+    @Override
+    public void insert(Transaction inst) {
+        transactionInsertRepository.insert(inst);
+    }
+
+    @Override
+    public Transaction setLimitInformation(Transaction inst) {
+        return null;
     }
 
     public Transaction transactionPojoToEntity(TransactionPojo pojo){
@@ -105,7 +120,7 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
         }
         transaction.setCurrency(currency);
         transaction.setDateTime(pojo.getDateTime());
-        transaction.setSum(pojo.getSum());
+        transaction.setSum(BigDecimal.valueOf(pojo.getSum()));
         return transaction;
     }
 }
