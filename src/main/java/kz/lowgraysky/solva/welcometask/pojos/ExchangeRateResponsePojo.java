@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @Setter
 @ToString
-public class ExchangeRateResponsePojo {
+public class ExchangeRateResponsePojo implements BasePojo{
 
     private Meta meta;
     private List<Values> values;
