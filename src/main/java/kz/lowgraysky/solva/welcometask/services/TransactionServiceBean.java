@@ -1,10 +1,6 @@
 package kz.lowgraysky.solva.welcometask.services;
 
-import jakarta.transaction.Transactional;
-import kz.lowgraysky.solva.welcometask.entities.BankAccount;
-import kz.lowgraysky.solva.welcometask.entities.BankAccountOwner;
-import kz.lowgraysky.solva.welcometask.entities.Currency;
-import kz.lowgraysky.solva.welcometask.entities.Transaction;
+import kz.lowgraysky.solva.welcometask.entities.*;
 import kz.lowgraysky.solva.welcometask.entities.enums.BankAccountOwnerType;
 import kz.lowgraysky.solva.welcometask.entities.enums.ExpenseCategory;
 import kz.lowgraysky.solva.welcometask.pojos.TransactionPojo;
@@ -24,19 +20,22 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
     private final CurrencyServiceBean currencyService;
     private final CurrencyRepository currencyRepository;
     private final TransactionInsertRepository transactionInsertRepository;
+    private final TransactionLimitServiceBean transactionLimitService;
 
     public TransactionServiceBean(TransactionRepository transactionRepository,
                                   BankAccountRepository bankAccountRepository,
                                   BankAccountOwnerRepository bankAccountOwnerRepository,
                                   CurrencyServiceBean currencyService,
                                   CurrencyRepository currencyRepository,
-                                  TransactionInsertRepository transactionInsertRepository) {
+                                  TransactionInsertRepository transactionInsertRepository,
+                                  TransactionLimitServiceBean transactionLimitService) {
         this.transactionRepository = transactionRepository;
         this.bankAccountRepository = bankAccountRepository;
         this.bankAccountOwnerRepository = bankAccountOwnerRepository;
         this.currencyService = currencyService;
         this.currencyRepository = currencyRepository;
         this.transactionInsertRepository = transactionInsertRepository;
+        this.transactionLimitService = transactionLimitService;
     }
 
     @Override
@@ -71,7 +70,11 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
 
     @Override
     public Transaction setLimitInformation(Transaction inst) {
-        return null;
+        TransactionLimit limit = transactionLimitService.getByExpenseCategory(inst.getExpenseCategory());
+        inst.setLimitCurrency(limit.getCurrency());
+        inst.setLimitDateTime(limit.getStandByDate());
+        inst.setLimitSum(limit.getAmount());
+        return inst;
     }
 
     public Transaction transactionPojoToEntity(TransactionPojo pojo){
@@ -121,6 +124,7 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
         transaction.setCurrency(currency);
         transaction.setDateTime(pojo.getDateTime());
         transaction.setSum(BigDecimal.valueOf(pojo.getSum()));
+        setLimitInformation(transaction);
         return transaction;
     }
 }

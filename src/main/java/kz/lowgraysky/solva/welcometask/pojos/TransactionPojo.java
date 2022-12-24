@@ -2,17 +2,15 @@ package kz.lowgraysky.solva.welcometask.pojos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.NonNull;
+import lombok.*;
 import org.hibernate.validator.constraints.NotBlank;
 
-import java.io.Serializable;
 import java.time.ZonedDateTime;
 
-@Data
-@NoArgsConstructor
-public class TransactionPojo implements Serializable {
+@Getter
+@Setter
+@ToString
+public class TransactionPojo implements BasePojo {
 
     @NonNull
     @JsonProperty("account_from")

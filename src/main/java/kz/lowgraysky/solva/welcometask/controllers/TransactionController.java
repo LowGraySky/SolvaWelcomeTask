@@ -2,6 +2,7 @@ package kz.lowgraysky.solva.welcometask.controllers;
 
 import kz.lowgraysky.solva.welcometask.entities.Transaction;
 import kz.lowgraysky.solva.welcometask.pojos.TransactionPojo;
+import kz.lowgraysky.solva.welcometask.pojos.TransactionResponsePojo;
 import kz.lowgraysky.solva.welcometask.services.TransactionServiceBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,18 @@ public class TransactionController extends AbstractController{
     public ResponseEntity<?> insertTransaction(@Valid @RequestBody TransactionPojo transactionPojo){
         Transaction transaction = transactionsService.transactionPojoToEntity(transactionPojo);
         transactionsService.insert(transaction);
-        return new ResponseEntity<>(transaction, HttpStatus.OK);
+        TransactionResponsePojo responsePojo = new TransactionResponsePojo(
+                transaction.getAccountFrom().getAddress(),
+                transaction.getAccountTo().getAddress(),
+                transaction.getCurrency().getShortName(),
+                transaction.getSum(),
+                transaction.getExpenseCategory(),
+                transaction.getDateTime(),
+                transaction.getLimitSum(),
+                transaction.getLimitDateTime(),
+                transaction.getLimitCurrency().getShortName()
+        );
+        return new ResponseEntity<>(responsePojo, HttpStatus.OK);
     }
 
 }
