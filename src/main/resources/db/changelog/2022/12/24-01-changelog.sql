@@ -1,18 +1,18 @@
 -- liquibase formatted sql
 
--- changeset lowgraysky:1671877276243-1
+-- changeset lowgraysky:1671883718459-1
 CREATE SEQUENCE IF NOT EXISTS public.hibernate_sequence START WITH 1 INCREMENT BY 1;
 
--- changeset lowgraysky:1671877276243-2
+-- changeset lowgraysky:1671883718459-2
 CREATE TABLE public.BANK_ACCOUNT
 (
     ID                    BIGINT NOT NULL,
     ADDRESS               BIGINT NOT NULL,
-    BANK_ACCOUNT_OWNER_ID BIGINT,
+    BANK_ACCOUNT_OWNER_ID BIGINT NOT NULL,
     CONSTRAINT pk_bank_account PRIMARY KEY (ID)
 );
 
--- changeset lowgraysky:1671877276243-3
+-- changeset lowgraysky:1671883718459-3
 CREATE TABLE public.BANK_ACCOUNT_OWNER
 (
     ID         BIGINT       NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE public.BANK_ACCOUNT_OWNER
     CONSTRAINT pk_bank_account_owner PRIMARY KEY (ID)
 );
 
--- changeset lowgraysky:1671877276243-4
+-- changeset lowgraysky:1671883718459-4
 CREATE TABLE public.CURRENCY
 (
     ID         BIGINT     NOT NULL,
@@ -28,7 +28,7 @@ CREATE TABLE public.CURRENCY
     CONSTRAINT pk_currency PRIMARY KEY (ID)
 );
 
--- changeset lowgraysky:1671877276243-5
+-- changeset lowgraysky:1671883718459-5
 CREATE TABLE public.EXCHANGE_RATE
 (
     ID         BIGINT       NOT NULL,
@@ -41,67 +41,65 @@ CREATE TABLE public.EXCHANGE_RATE
     CONSTRAINT pk_exchange_rate PRIMARY KEY (ID)
 );
 
--- changeset lowgraysky:1671877276243-6
+-- changeset lowgraysky:1671883718459-6
 CREATE TABLE public.TRANSACTION
 (
-    ID                BIGINT       NOT NULL,
-    ACCOUNT_FROM      BIGINT,
-    ACCOUNT_TO        BIGINT,
-    CURRENCY_ID       BIGINT,
-    SUM               DECIMAL      NOT NULL,
-    EXPENSE_CATEGORY  VARCHAR(255) NOT NULL,
-    "dateTime"        TIMESTAMP WITHOUT TIME ZONE,
-    LIMIT_EXCEDEED    BOOLEAN      NOT NULL,
-    LIMIT_SUM         DECIMAL,
-    LIMIT_DATE_TIME   TIMESTAMP WITHOUT TIME ZONE,
-    LIMIT_CURRENCY_ID BIGINT,
+    ID                   BIGINT                      NOT NULL,
+    BANK_ACCOUNT_FROM_ID BIGINT                      NOT NULL,
+    BANK_ACCOUNT_TO_ID   BIGINT                      NOT NULL,
+    CURRENCY_ID          BIGINT                      NOT NULL,
+    SUM                  DECIMAL                     NOT NULL,
+    EXPENSE_CATEGORY     VARCHAR(255)                NOT NULL,
+    DATE_TIME            TIMESTAMP WITHOUT TIME ZONE NOT NULL,
+    LIMIT_EXCEDEED       BOOLEAN                     NOT NULL,
+    TRANSACTION_LIMIT_ID BIGINT,
     CONSTRAINT pk_transaction PRIMARY KEY (ID)
 );
 
--- changeset lowgraysky:1671877276243-7
+-- changeset lowgraysky:1671883718459-7
 CREATE TABLE public.TRANSACTION_LIMIT
 (
     ID               BIGINT                      NOT NULL,
     AMOUNT           DECIMAL                     NOT NULL,
     EXPENSE_CATEGORY VARCHAR(255)                NOT NULL,
     STAND_BY         TIMESTAMP WITHOUT TIME ZONE NOT NULL,
-    CURRENCY_ID      BIGINT,
+    CURRENCY_ID      BIGINT                      NOT NULL,
     CONSTRAINT pk_transaction_limit PRIMARY KEY (ID)
 );
 
--- changeset lowgraysky:1671877276243-8
+-- changeset lowgraysky:1671883718459-8
 ALTER TABLE public.BANK_ACCOUNT
     ADD CONSTRAINT uc_bank_account_address UNIQUE (ADDRESS);
 
--- changeset lowgraysky:1671877276243-9
+-- changeset lowgraysky:1671883718459-9
 ALTER TABLE public.CURRENCY
     ADD CONSTRAINT uc_currency_short_name UNIQUE (SHORT_NAME);
 
--- changeset lowgraysky:1671877276243-10
+-- changeset lowgraysky:1671883718459-10
 ALTER TABLE public.TRANSACTION_LIMIT
     ADD CONSTRAINT uc_transaction_limit_expense_category UNIQUE (EXPENSE_CATEGORY);
 
--- changeset lowgraysky:1671877276243-11
+-- changeset lowgraysky:1671883718459-11
 ALTER TABLE public.BANK_ACCOUNT
     ADD CONSTRAINT FK_BANK_ACCOUNT_ON_BANK_ACCOUNT_OWNER FOREIGN KEY (BANK_ACCOUNT_OWNER_ID) REFERENCES public.BANK_ACCOUNT_OWNER (ID);
 
--- changeset lowgraysky:1671877276243-12
+-- changeset lowgraysky:1671883718459-12
 ALTER TABLE public.TRANSACTION_LIMIT
     ADD CONSTRAINT FK_TRANSACTION_LIMIT_ON_CURRENCY FOREIGN KEY (CURRENCY_ID) REFERENCES public.CURRENCY (ID);
 
--- changeset lowgraysky:1671877276243-13
+-- changeset lowgraysky:1671883718459-13
 ALTER TABLE public.TRANSACTION
-    ADD CONSTRAINT FK_TRANSACTION_ON_ACCOUNT_FROM FOREIGN KEY (ACCOUNT_FROM) REFERENCES public.BANK_ACCOUNT (ID);
+    ADD CONSTRAINT FK_TRANSACTION_ON_BANK_ACCOUNT_FROM FOREIGN KEY (BANK_ACCOUNT_FROM_ID) REFERENCES public.BANK_ACCOUNT (ID);
 
--- changeset lowgraysky:1671877276243-14
+-- changeset lowgraysky:1671883718459-14
 ALTER TABLE public.TRANSACTION
-    ADD CONSTRAINT FK_TRANSACTION_ON_ACCOUNT_TO FOREIGN KEY (ACCOUNT_TO) REFERENCES public.BANK_ACCOUNT (ID);
+    ADD CONSTRAINT FK_TRANSACTION_ON_BANK_ACCOUNT_TO FOREIGN KEY (BANK_ACCOUNT_TO_ID) REFERENCES public.BANK_ACCOUNT (ID);
 
--- changeset lowgraysky:1671877276243-15
+-- changeset lowgraysky:1671883718459-15
 ALTER TABLE public.TRANSACTION
     ADD CONSTRAINT FK_TRANSACTION_ON_CURRENCY FOREIGN KEY (CURRENCY_ID) REFERENCES public.CURRENCY (ID);
 
--- changeset lowgraysky:1671877276243-16
+-- changeset lowgraysky:1671883718459-16
 ALTER TABLE public.TRANSACTION
-    ADD CONSTRAINT FK_TRANSACTION_ON_LIMIT_CURRENCY FOREIGN KEY (LIMIT_CURRENCY_ID) REFERENCES public.CURRENCY (ID);
+    ADD CONSTRAINT FK_TRANSACTION_ON_TRANSACTION_LIMIT FOREIGN KEY (TRANSACTION_LIMIT_ID) REFERENCES public.TRANSACTION_LIMIT (ID);
 
