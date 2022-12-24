@@ -68,15 +68,6 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
         transactionInsertRepository.insert(inst);
     }
 
-    @Override
-    public Transaction setLimitInformation(Transaction inst) {
-        TransactionLimit limit = transactionLimitService.getByExpenseCategory(inst.getExpenseCategory());
-        inst.setLimitCurrency(limit.getCurrency());
-        inst.setLimitDateTime(limit.getStandByDate());
-        inst.setLimitSum(limit.getAmount());
-        return inst;
-    }
-
     public Transaction transactionPojoToEntity(TransactionPojo pojo){
         BankAccount bankAccountFrom = bankAccountRepository.getByAddress(pojo.getAccountFrom());
         BankAccount bankAccountTo = bankAccountRepository.getByAddress(pojo.getAccountTo());
@@ -124,7 +115,6 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
         transaction.setCurrency(currency);
         transaction.setDateTime(pojo.getDateTime());
         transaction.setSum(BigDecimal.valueOf(pojo.getSum()));
-        setLimitInformation(transaction);
         return transaction;
     }
 }

@@ -6,9 +6,8 @@ import kz.lowgraysky.solva.welcometask.repositories.TransactionLimitRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.Instant;
 import java.time.ZonedDateTime;
-import java.util.Date;
+import java.util.List;
 
 @Service
 public class TransactionLimitServiceBean implements TransactionLimitService{
@@ -30,6 +29,11 @@ public class TransactionLimitServiceBean implements TransactionLimitService{
     @Override
     public TransactionLimit getByExpenseCategory(ExpenseCategory category) {
         return transactionLimitRepository.getByExpenseCategory(category);
+    }
+
+    @Override
+    public List<TransactionLimit> getAllLimits(){
+        return (List<TransactionLimit>) transactionLimitRepository.findAll();
     }
 
     @Override
