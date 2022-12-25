@@ -4,6 +4,7 @@ import kz.lowgraysky.solva.welcometask.pojos.ErrorResponseEntityPojo;
 import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,6 +31,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({MissingDataException.class})
     public ResponseEntity<?> handleMissingDataException(MissingDataException exception){
+        return new ResponseEntity<>(new ErrorResponseEntityPojo(exception.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class})
+    public ResponseEntity<?> handleHttpMessageNotReadableException(HttpMessageNotReadableException exception){
         return new ResponseEntity<>(new ErrorResponseEntityPojo(exception.getMessage()), HttpStatus.BAD_REQUEST);
     }
 }
