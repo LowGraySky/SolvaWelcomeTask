@@ -7,6 +7,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
+import java.time.Month;
 import java.time.ZonedDateTime;
 
 @Getter
@@ -29,4 +30,10 @@ public class TransactionLimitResponsePojo implements BasePojo{
 
     @JsonProperty("limit_currency_shortname")
     private String currencyShortName;
+
+    @JsonProperty("address")
+    private Long accountAddress;
+
+    @JsonProperty("month")
+    private Month month;
 }

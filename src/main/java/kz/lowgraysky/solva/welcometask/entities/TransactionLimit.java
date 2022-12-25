@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
+import java.time.Month;
 import java.time.ZonedDateTime;
 
 @Data
@@ -36,11 +37,20 @@ public class TransactionLimit extends BaseEntity {
     @Column(name = "AVAILABLE_AMOUNT", nullable = false)
     private BigDecimal availableAmount;
 
-    public TransactionLimit(BigDecimal amount, ExpenseCategory category, ZonedDateTime standBy, Currency currency){
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "BANK_ACCOUNT_ID", nullable = false)
+    private BankAccount bankAccount;
+
+    @Column(name = "MONTH", nullable = false)
+    private Month month;
+
+    public TransactionLimit(BigDecimal amount, ExpenseCategory category, ZonedDateTime standBy, Currency currency, BankAccount bankAccount, BigDecimal availableAmount){
         this.amount = amount;
         this.expenseCategory = category;
         this.standByDate = standBy;
         this.currency = currency;
-        this.availableAmount = amount;
+        this.availableAmount = availableAmount;
+        this.bankAccount = bankAccount;
+        this.month = standBy.getMonth();
     }
 }

@@ -1,6 +1,7 @@
 package kz.lowgraysky.solva.welcometask.pojos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.DecimalMax;
 import lombok.*;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -19,4 +20,9 @@ public class NewTransactionLimitPojo implements BasePojo{
     @NotBlank
     @JsonProperty("category")
     private String expenseCategory;
+
+    @NonNull
+    @DecimalMax(value = "9999999999", message = "Account address must be not bigger than 9_999_999_999.")
+    @JsonProperty("address")
+    private Long accountAddress;
 }
