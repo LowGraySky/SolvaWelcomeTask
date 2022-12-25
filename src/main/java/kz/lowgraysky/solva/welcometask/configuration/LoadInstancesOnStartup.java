@@ -4,7 +4,7 @@ import kz.lowgraysky.solva.welcometask.entities.Currency;
 import kz.lowgraysky.solva.welcometask.entities.TransactionLimit;
 import kz.lowgraysky.solva.welcometask.entities.enums.ExpenseCategory;
 import kz.lowgraysky.solva.welcometask.repositories.CurrencyRepository;
-import kz.lowgraysky.solva.welcometask.repositories.LimitRepository;
+import kz.lowgraysky.solva.welcometask.repositories.TransactionLimitRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -16,14 +16,14 @@ public class LoadInstancesOnStartup implements CommandLineRunner {
 
     private final ConfigProperties configProperties;
     private final CurrencyRepository currencyRepository;
-    private final LimitRepository limitRepository;
+    private final TransactionLimitRepository transactionLimitRepository;
 
     public LoadInstancesOnStartup(ConfigProperties configProperties,
                                   CurrencyRepository currencyRepository,
-                                  LimitRepository limitRepository) {
+                                  TransactionLimitRepository transactionLimitRepository) {
         this.configProperties = configProperties;
         this.currencyRepository = currencyRepository;
-        this.limitRepository = limitRepository;
+        this.transactionLimitRepository = transactionLimitRepository;
     }
 
     @Override
@@ -32,14 +32,14 @@ public class LoadInstancesOnStartup implements CommandLineRunner {
         currencyRepository.save(new Currency("KZT"));
         currencyRepository.save(new Currency("RUB"));
         currencyRepository.save(USDCurrency);
-        limitRepository.save(new TransactionLimit(
+        transactionLimitRepository.save(new TransactionLimit(
                 configProperties.SERVICE_MONTH_LIMIT() == null ?
                         BigDecimal.ZERO : configProperties.SERVICE_MONTH_LIMIT(),
                 ExpenseCategory.SERVICE,
                 ZonedDateTime.now(),
                 USDCurrency
         ));
-        limitRepository.save(new TransactionLimit(
+        transactionLimitRepository.save(new TransactionLimit(
                 configProperties.PRODUCT_MONTH_LIMIT() == null ?
                         BigDecimal.ZERO : configProperties.PRODUCT_MONTH_LIMIT(),
                 ExpenseCategory.PRODUCT,
