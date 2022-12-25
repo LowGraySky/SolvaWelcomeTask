@@ -1,6 +1,7 @@
 package kz.lowgraysky.solva.welcometask.entities;
 
 import jakarta.persistence.*;
+import kz.lowgraysky.solva.welcometask.entities.enums.BankAccountOwnerType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +14,7 @@ public class BankAccount extends BaseEntity{
     @Column(name = "ADDRESS", length = 10, nullable = false, unique = true)
     private Long address;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "BANK_ACCOUNT_OWNER_ID", nullable = false)
-    private BankAccountOwner bankAccountOwner;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "TYPE", nullable = false)
+    private BankAccountOwnerType type;
 }

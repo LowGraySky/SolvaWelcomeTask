@@ -1,7 +1,7 @@
 package kz.lowgraysky.solva.welcometask.services;
 
 import kz.lowgraysky.solva.welcometask.entities.BankAccount;
-import kz.lowgraysky.solva.welcometask.exceptions.MissingDataException;
+import kz.lowgraysky.solva.welcometask.entities.enums.BankAccountOwnerType;
 import kz.lowgraysky.solva.welcometask.repositories.BankAccountRepository;
 import kz.lowgraysky.solva.welcometask.utils.BeanHelper;
 import org.springframework.stereotype.Service;
@@ -29,10 +29,14 @@ public class BankAccountServiceBean extends BeanHelper implements BankAccountSer
 
     @Override
     public BankAccount getByAddress(Long address) {
-        BankAccount bankAccount = bankAccountRepository.getByAddress(address);
-        if(bankAccount == null){
-            throw new MissingDataException(String.format("No data for %s and %d address", BankAccount.class, address));
-        }
-        return bankAccount;
+        return bankAccountRepository.getByAddress(address);
+    }
+
+    @Override
+    public BankAccount createAccount(Long address, BankAccountOwnerType type) {
+        BankAccount bankAccount = new BankAccount();
+        bankAccount.setAddress(address);
+        bankAccount.setType(type);
+        return save(bankAccount);
     }
 }
