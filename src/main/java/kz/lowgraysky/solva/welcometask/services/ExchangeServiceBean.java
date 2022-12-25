@@ -2,6 +2,8 @@ package kz.lowgraysky.solva.welcometask.services;
 
 import kz.lowgraysky.solva.welcometask.configuration.ConfigProperties;
 import kz.lowgraysky.solva.welcometask.entities.ExchangeRate;
+import kz.lowgraysky.solva.welcometask.exceptions.EnrichmentFromRemoteException;
+import kz.lowgraysky.solva.welcometask.exceptions.MissingDataException;
 import kz.lowgraysky.solva.welcometask.pojos.ExchangeRateResponsePojo;
 import kz.lowgraysky.solva.welcometask.repositories.ExchangeRateRepository;
 import kz.lowgraysky.solva.welcometask.utils.BeanHelper;
@@ -51,7 +53,7 @@ public class ExchangeServiceBean extends BeanHelper implements ExchangeService {
                 .getForObject(sb.toString(), ExchangeRateResponsePojo.class);
         logger.info(String.format("Get exchange rates from %s. Result: %s", sb, result));
         if(result != null && result.getStatus() != null && !result.getStatus().equals("ok")){
-            throw new RuntimeException(
+            throw new EnrichmentFromRemoteException(
                     String.format("Error occurred in processing request to %s. Message: %s", sb, result.getMessage()));
         }
         return result;
@@ -76,8 +78,36 @@ public class ExchangeServiceBean extends BeanHelper implements ExchangeService {
         if(previousDayExchangeRate != null && previousDayExchangeRate.getClose() != null){
             return previousDayExchangeRate.getClose();
         }
-        enrichExchangeRatesFromRemote(symbol);
-        return getActualClosePriceForExchangeRate(symbol, date);
+        try{
+            enrichExchangeRatesFromRemote(symbol);
+            exchangeRate = exchangeRateRepository.getByDateTimeAndSymbol(symbol, date);
+            previousDayExchangeRate = exchangeRateRepository
+                    .getByDateTimeAndSymbol(symbol, date.minusDays(1));
+            if(exchangeRate != null && exchangeRate.getClose() != null){
+                return exchangeRate.getClose();
+            }
+            if(previousDayExchangeRate != null && previousDayExchangeRate.getClose() != null){
+                return previousDayExchangeRate.getClose();
+            }
+        }catch (EnrichmentFromRemoteException exception){
+            exception.printStackTrace();
+        }
+        logger.info(String.format(
+                "No actual close exchange rate for symbol: %s on date: %s and %s." +
+                        " Trying get last available exchange rate from database.",
+                symbol, date, date.minusDays(1)));
+        ExchangeRate lastAvailable = exchangeRateRepository.getBySymbolAndLastDate(symbol);
+        if(lastAvailable != null){
+            logger.info(String.format("Last available exchange rate available on date: %s",
+                    lastAvailable.getDateTime()));
+        }
+        if(lastAvailable != null && lastAvailable.getClose() != null){
+            return lastAvailable.getClose();
+        }
+        throw new MissingDataException(
+                String.format(
+                        "Cannot get exchange rate for symbol: %s. " +
+                                "Cannot get from database and remote enrichment service.", symbol));
     }
 
     public List<ExchangeRate> exchangeRatePojoToEntity(ExchangeRateResponsePojo pojo){
