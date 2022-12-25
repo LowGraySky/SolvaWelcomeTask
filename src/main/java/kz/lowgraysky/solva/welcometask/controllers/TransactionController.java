@@ -4,7 +4,6 @@ import jakarta.validation.Valid;
 import kz.lowgraysky.solva.welcometask.entities.Transaction;
 import kz.lowgraysky.solva.welcometask.pojos.TransactionPojo;
 import kz.lowgraysky.solva.welcometask.pojos.TransactionResponsePojo;
-import kz.lowgraysky.solva.welcometask.services.TransactionLimitServiceBean;
 import kz.lowgraysky.solva.welcometask.services.TransactionServiceBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
