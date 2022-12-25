@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface TransactionLimitService extends CommonService<TransactionLimit>{
 
+    void insert(TransactionLimit inst);
+
     TransactionLimit setNewLimit(BigDecimal amount, ExpenseCategory category);
 
     TransactionLimit getByExpenseCategoryAndMaxStandBy(ExpenseCategory category);
