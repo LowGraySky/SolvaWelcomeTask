@@ -1,5 +1,6 @@
 package kz.lowgraysky.solva.welcometask.controllers;
 
+import jakarta.validation.Valid;
 import kz.lowgraysky.solva.welcometask.entities.Transaction;
 import kz.lowgraysky.solva.welcometask.pojos.TransactionPojo;
 import kz.lowgraysky.solva.welcometask.pojos.TransactionResponsePojo;
@@ -9,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/transaction")

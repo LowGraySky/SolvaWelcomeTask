@@ -1,5 +1,6 @@
 package kz.lowgraysky.solva.welcometask.controllers.api;
 
+import jakarta.validation.Valid;
 import kz.lowgraysky.solva.welcometask.controllers.AbstractController;
 import kz.lowgraysky.solva.welcometask.entities.Transaction;
 import kz.lowgraysky.solva.welcometask.entities.TransactionLimit;
@@ -13,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
