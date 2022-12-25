@@ -67,41 +67,34 @@ public class ExchangeServiceBean extends BeanHelper implements ExchangeService {
         logger.info(String.format("Save %s entities: %s", ExchangeRate.class, rates.toString()));
     }
 
+    //If no any exchange rate instances for current symbol on requested date
+    // in database, and service unavailable in request time - exception will be throwing
+    // and processing will be falling dawn
     @Override
     public BigDecimal getActualClosePriceForExchangeRate(String symbol, LocalDate date) {
         ExchangeRate exchangeRate = exchangeRateRepository.getByDateTimeAndSymbol(symbol, date);
-        ExchangeRate previousDayExchangeRate = exchangeRateRepository
-                .getByDateTimeAndSymbol(symbol, date.minusDays(1));
         if(exchangeRate != null && exchangeRate.getClose() != null){
             return exchangeRate.getClose();
-        }
-        if(previousDayExchangeRate != null && previousDayExchangeRate.getClose() != null){
-            return previousDayExchangeRate.getClose();
         }
         try{
             enrichExchangeRatesFromRemote(symbol);
             exchangeRate = exchangeRateRepository.getByDateTimeAndSymbol(symbol, date);
-            previousDayExchangeRate = exchangeRateRepository
-                    .getByDateTimeAndSymbol(symbol, date.minusDays(1));
             if(exchangeRate != null && exchangeRate.getClose() != null){
                 return exchangeRate.getClose();
-            }
-            if(previousDayExchangeRate != null && previousDayExchangeRate.getClose() != null){
-                return previousDayExchangeRate.getClose();
             }
         }catch (EnrichmentFromRemoteException exception){
             exception.printStackTrace();
         }
         logger.info(String.format(
-                "No actual close exchange rate for symbol: %s on date: %s and %s." +
+                "No actual close exchange rate for symbol: %s on date: %s." +
                         " Trying get last available exchange rate from database.",
-                symbol, date, date.minusDays(1)));
-        ExchangeRate lastAvailable = exchangeRateRepository.getBySymbolAndLastDate(symbol);
+                symbol, date));
+        ExchangeRate lastAvailable = exchangeRateRepository.getBySymbolAndLastDateAndCloseIsNotNull(symbol);
         if(lastAvailable != null){
             logger.info(String.format("Last available exchange rate available on date: %s",
                     lastAvailable.getDateTime()));
         }
-        if(lastAvailable != null && lastAvailable.getClose() != null){
+        if(lastAvailable != null){
             return lastAvailable.getClose();
         }
         throw new MissingDataException(
