@@ -9,6 +9,6 @@ import java.util.List;
 @Repository
 public interface TransactionRepository extends EntityRepository<Transaction> {
 
-    @Query(value = "SELECT t FROM Transaction t WHERE t.limitExceeded = TRUE")
-    List<Transaction> getAllTransactionsWithTimeLimitExceed();
+    @Query(value = "SELECT t FROM Transaction t WHERE t.limitExceeded = TRUE AND t.accountFrom.address = :address ")
+    List<Transaction> getAllTransactionsWithTimeLimitExceed(Long address);
 }

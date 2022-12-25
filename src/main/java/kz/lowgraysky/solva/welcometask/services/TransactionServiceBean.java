@@ -1,5 +1,6 @@
 package kz.lowgraysky.solva.welcometask.services;
 
+import kz.lowgraysky.solva.welcometask.configuration.ConfigProperties;
 import kz.lowgraysky.solva.welcometask.entities.*;
 import kz.lowgraysky.solva.welcometask.entities.enums.BankAccountOwnerType;
 import kz.lowgraysky.solva.welcometask.entities.enums.ExpenseCategory;
@@ -9,6 +10,7 @@ import kz.lowgraysky.solva.welcometask.utils.BeanHelper;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -16,30 +18,30 @@ import java.util.List;
 public class TransactionServiceBean extends BeanHelper implements TransactionsService{
 
     private final TransactionRepository transactionRepository;
-    private final BankAccountRepository bankAccountRepository;
-    private final BankAccountOwnerRepository bankAccountOwnerRepository;
+    private final BankAccountServiceBean bankAccountService;
     private final CurrencyServiceBean currencyService;
     private final CurrencyRepository currencyRepository;
     private final TransactionInsertRepository transactionInsertRepository;
     private final TransactionLimitServiceBean transactionLimitService;
     private final ExchangeServiceBean exchangeService;
+    private final ConfigProperties configProperties;
 
     public TransactionServiceBean(TransactionRepository transactionRepository,
-                                  BankAccountRepository bankAccountRepository,
-                                  BankAccountOwnerRepository bankAccountOwnerRepository,
+                                  BankAccountServiceBean bankAccountService,
                                   CurrencyServiceBean currencyService,
                                   CurrencyRepository currencyRepository,
                                   TransactionInsertRepository transactionInsertRepository,
                                   TransactionLimitServiceBean transactionLimitService,
-                                  ExchangeServiceBean exchangeService) {
+                                  ExchangeServiceBean exchangeService,
+                                  ConfigProperties configProperties) {
         this.transactionRepository = transactionRepository;
-        this.bankAccountRepository = bankAccountRepository;
-        this.bankAccountOwnerRepository = bankAccountOwnerRepository;
+        this.bankAccountService = bankAccountService;
         this.currencyService = currencyService;
         this.currencyRepository = currencyRepository;
         this.transactionInsertRepository = transactionInsertRepository;
         this.transactionLimitService = transactionLimitService;
         this.exchangeService = exchangeService;
+        this.configProperties = configProperties;
     }
 
     @Override
@@ -53,20 +55,33 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
     }
 
     @Override
-    public List<Transaction> getAllTransactionWithTimeLimitExceed() {
-        return transactionRepository.getAllTransactionsWithTimeLimitExceed();
+    public List<Transaction> getAllTransactionWithTimeLimitExceed(Long address) {
+        return transactionRepository.getAllTransactionsWithTimeLimitExceed(address);
     }
 
     @Override
     public void checkOnTransactionLimit(Transaction inst) {
-        TransactionLimit limit = transactionLimitService.getByExpenseCategoryAndMaxStandBy(inst.getExpenseCategory());
+        TransactionLimit limit = transactionLimitService.getByExpenseCategoryAndMaxStandBy(
+                inst.getExpenseCategory(),
+                inst.getAccountFrom().getAddress(),
+                inst.getDateTime().getMonth()
+        );
+        if(limit == null){
+            limit = transactionLimitService.setNewLimit(
+                    inst.getExpenseCategory() == ExpenseCategory.PRODUCT ?
+                            configProperties.PRODUCT_MONTH_LIMIT() : configProperties.SERVICE_MONTH_LIMIT(),
+                    inst.getExpenseCategory(),
+                    inst.getAccountFrom().getAddress()
+            );
+        }
         BigDecimal transactionAmountWithCurrency;
         if(!inst.getCurrency().getShortName().equals("USD")) {
             BigDecimal actualCurrencyExchangeRate = exchangeService.getActualClosePriceForExchangeRate(
                     String.format("USD/%s", inst.getCurrency().getShortName()),
                     LocalDate.now()
             );
-            transactionAmountWithCurrency = inst.getSum().multiply(actualCurrencyExchangeRate);
+            transactionAmountWithCurrency =
+                    inst.getSum().divide(actualCurrencyExchangeRate, 2, RoundingMode.HALF_UP);
         }else{
             transactionAmountWithCurrency = inst.getSum();
         }
@@ -75,10 +90,7 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
             inst.setLimitExceeded(true);
             inst.setTransactionLimit(limit);
         }
-        BigDecimal newAvailableAmount = limit.getAvailableAmount().subtract(inst.getSum());
-        limit.setAvailableAmount(
-                newAvailableAmount.max(BigDecimal.ZERO).equals(BigDecimal.ZERO) ? BigDecimal.ZERO : newAvailableAmount
-        );
+        limit.setAvailableAmount(limit.getAvailableAmount().subtract(transactionAmountWithCurrency));
         transactionLimitService.save(limit);
     }
 
@@ -95,37 +107,13 @@ public class TransactionServiceBean extends BeanHelper implements TransactionsSe
     }
 
     public Transaction transactionPojoToEntity(TransactionPojo pojo){
-        BankAccount bankAccountFrom = bankAccountRepository.getByAddress(pojo.getAccountFrom());
-        BankAccount bankAccountTo = bankAccountRepository.getByAddress(pojo.getAccountTo());
-
-        BankAccountOwner accountFromOwner =
-                bankAccountOwnerRepository.getOwnerByBankAccountAddress(pojo.getAccountFrom());
-
-        BankAccountOwner accountToOwner =
-                bankAccountOwnerRepository.getOwnerByBankAccountAddress(pojo.getAccountTo());
-
+        BankAccount bankAccountFrom = bankAccountService.getByAddress(pojo.getAccountFrom());
+        BankAccount bankAccountTo = bankAccountService.getByAddress(pojo.getAccountTo());
         if(bankAccountFrom == null){
-            bankAccountFrom = new BankAccount();
-            bankAccountFrom.setAddress(pojo.getAccountFrom());
-            if(accountFromOwner == null){
-                accountFromOwner = new BankAccountOwner();
-                accountFromOwner.setOwnerType(BankAccountOwnerType.CLIENT);
-                bankAccountOwnerRepository.save(accountFromOwner);
-            }
-            bankAccountFrom.setBankAccountOwner(accountFromOwner);
-            bankAccountFrom = bankAccountRepository.save(bankAccountFrom);
+            bankAccountFrom = bankAccountService.createAccount(pojo.getAccountFrom(), BankAccountOwnerType.CLIENT);
         }
-
         if(bankAccountTo == null){
-            bankAccountTo = new BankAccount();
-            bankAccountTo.setAddress(pojo.getAccountTo());
-            if(accountToOwner == null){
-                accountToOwner = new BankAccountOwner();
-                accountToOwner.setOwnerType(BankAccountOwnerType.CONTR_AGENT);
-                bankAccountOwnerRepository.save(accountToOwner);
-            }
-            bankAccountTo.setBankAccountOwner(accountToOwner);
-            bankAccountTo = bankAccountRepository.save(bankAccountTo);
+            bankAccountTo = bankAccountService.createAccount(pojo.getAccountTo(), BankAccountOwnerType.CONTR_AGENT);
         }
 
         Transaction transaction = new Transaction();

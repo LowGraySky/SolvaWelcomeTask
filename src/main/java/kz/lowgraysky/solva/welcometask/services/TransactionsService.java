@@ -10,5 +10,5 @@ public interface TransactionsService extends CommonService<Transaction>{
 
     void insert(Transaction inst);
 
-    List<Transaction> getAllTransactionWithTimeLimitExceed();
+    List<Transaction> getAllTransactionWithTimeLimitExceed(Long address);
 }
