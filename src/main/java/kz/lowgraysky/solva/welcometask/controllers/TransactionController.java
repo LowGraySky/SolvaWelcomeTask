@@ -16,12 +16,9 @@ import org.springframework.web.bind.annotation.*;
 public class TransactionController extends AbstractController{
 
     private final TransactionServiceBean transactionsService;
-    private final TransactionLimitServiceBean transactionLimitService;
 
-    public TransactionController(TransactionServiceBean transactionsService,
-                                 TransactionLimitServiceBean transactionLimitService) {
+    public TransactionController(TransactionServiceBean transactionsService) {
         this.transactionsService = transactionsService;
-        this.transactionLimitService = transactionLimitService;
     }
 
     @PostMapping(value = "", produces = "application/json;charset=utf-8")
