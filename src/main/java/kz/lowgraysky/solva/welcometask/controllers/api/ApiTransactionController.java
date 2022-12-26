@@ -78,6 +78,7 @@ public class ApiTransactionController extends AbstractController {
                 limit.getStandByDate(),
                 limit.getCurrency().getShortName(),
                 limit.getBankAccount().getAddress(),
+                limit.getAvailableAmount(),
                 limit.getMonth()
         );
         return new ResponseEntity<>(responsePojo, HttpStatus.OK);
@@ -96,6 +97,7 @@ public class ApiTransactionController extends AbstractController {
                         limit.getStandByDate(),
                         limit.getCurrency().getShortName(),
                         limit.getBankAccount().getAddress(),
+                        limit.getAvailableAmount(),
                         limit.getMonth()
                 ))
                 .collect(Collectors.toList());

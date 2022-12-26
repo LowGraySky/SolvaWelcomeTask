@@ -34,6 +34,9 @@ public class TransactionLimitResponsePojo implements BasePojo{
     @JsonProperty("address")
     private Long accountAddress;
 
+    @JsonProperty("available_amount")
+    private BigDecimal availableAmount;
+
     @JsonProperty("month")
     private Month month;
 }
